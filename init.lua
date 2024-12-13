@@ -244,6 +244,13 @@ vim.opt.rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
+  {
+    "numToStr/Comment.nvim",
+    config = function()
+      require("Comment").setup()
+    end,
+  },
+
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
@@ -427,6 +434,12 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+
+      vim.keymap.set('n', '<C-_>', '<cmd>lua require("Comment.api").toggle.linewise.current()<CR>',
+        { noremap = true, silent = true })
+      vim.keymap.set('v', '<C-_>', '<ESC><cmd>lua require("Comment.api").toggle.linewise(vim.fn.visualmode())<CR>',
+        { noremap = true, silent = true })
+
       -- Function to search all Vim commands including built-in ones
       local builtin = require('telescope.builtin')
       vim.keymap.set('n', '<leader>sc', builtin.commands, { desc = 'Find Commands' })
@@ -1050,6 +1063,11 @@ vim.api.nvim_set_keymap(
   '<cmd>lua require("your_module_name").all_commands()<CR>',
   { noremap = true, silent = true }
 )
+-- Map <leader>d to delete without yanking in normal mode
+vim.keymap.set('n', '<leader>d', '"_d', { noremap = true, silent = true })
+
+-- Map <leader>d to delete without yanking in visual mode
+vim.keymap.set('x', '<leader>d', '"_d', { noremap = true, silent = true })
 
 -- Return the module (if using a separate file)
 return M
