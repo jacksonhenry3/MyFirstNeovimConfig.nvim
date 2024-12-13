@@ -1069,6 +1069,17 @@ vim.keymap.set('n', '<leader>d', '"_d', { noremap = true, silent = true })
 -- Map <leader>d to delete without yanking in visual mode
 vim.keymap.set('x', '<leader>d', '"_d', { noremap = true, silent = true })
 
+
+-- Map Ctrl-a to move to the beginning of the line
+vim.api.nvim_set_keymap('n', '<C-a>', '0', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('i', '<C-a>', '<C-o>0', { noremap = true, silent = true })
+
+-- Map Ctrl-e to move to the end of the line
+vim.api.nvim_set_keymap('n', '<C-e>', '$', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('i', '<C-e>', '<C-o>$', { noremap = true, silent = true })
+
+
+
 -- Return the module (if using a separate file)
 return M
 
