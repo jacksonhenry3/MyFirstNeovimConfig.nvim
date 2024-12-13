@@ -84,6 +84,9 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+vim.o.foldmethod = "indent"
+
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -117,6 +120,7 @@ vim.opt.showmode = false
 vim.schedule(function()
   vim.opt.clipboard = 'unnamedplus'
 end)
+
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -424,33 +428,46 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
       -- Function to search all Vim commands including built-in ones
-      vim.keymap.set('n', '<leader>su', require('telescope.builtin').commands, { desc = '[S]earch [U]ser Commands' })
+      local builtin = require('telescope.builtin')
+      vim.keymap.set('n', '<leader>sc', builtin.commands, { desc = 'Find Commands' })
 
-      vim.keymap.set('n', '<leader>sc', function()
-        local commands = vim.fn.getcompletion('', 'command')
+      -- wk.register({
+      --   ["<leader>"] = {
+      --     f = {
+      --       name = "Find",
+      --       c = { "<cmd>Telescope commands<cr>", "Fuzzy Search Commands" }, -- <leader>fc for command search
+      --       f = { "<cmd>Telescope find_files<cr>", "Find Files" },
+      --       r = { "<cmd>Telescope oldfiles<cr>", "Recent Files" },
+      --     },
+      --   },
+      -- })
 
-        require('telescope.pickers').new({}, {
-          prompt_title = 'All Vim Commands',
-          finder = require('telescope.finders').new_table {
-            results = commands,
-          },
-          sorter = require('telescope.config').values.generic_sorter({}),
-          attach_mappings = function(prompt_bufnr, map)
-            local actions = require('telescope.actions')
-            local action_state = require('telescope.actions.state')
 
-            -- Replace the default action with a custom one
-            actions.select_default:replace(function()
-              actions.close(prompt_bufnr)
-              local selection = action_state.get_selected_entry()
-              -- Open the command line with the selected command pre-filled
-              vim.api.nvim_feedkeys(':' .. selection[1], 'n', false)
-            end)
-            return true
-          end,
-        }):find()
-      end, { desc = '[S]earch [C]ommands' })
-
+      -- vim.keymap.set('n', '<leader>sc', function()
+      --   local commands = vim.fn.getcompletion('', 'command')
+      --
+      --   require('telescope.pickers').new({}, {
+      --     prompt_title = 'All Vim Commands',
+      --     finder = require('telescope.finders').new_table {
+      --       results = commands,
+      --     },
+      --     sorter = require('telescope.config').values.generic_sorter({}),
+      --     attach_mappings = function(prompt_bufnr, map)
+      --       local actions = require('telescope.actions')
+      --       local action_state = require('telescope.actions.state')
+      --
+      --       -- Replace the default action with a custom one
+      --       actions.select_default:replace(function()
+      --         actions.close(prompt_bufnr)
+      --         local selection = action_state.get_selected_entry()
+      --         -- Open the command line with the selected command pre-filled
+      --         vim.api.nvim_feedkeys(':' .. selection[1], 'n', false)
+      --       end)
+      --       return true
+      --     end,
+      --   }):find()
+      -- end, { desc = '[S]earch [C]ommands' })
+      --
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
@@ -646,7 +663,7 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        pyright = {},
+        -- pyright = {},
         rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -767,12 +784,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -803,13 +820,13 @@ require('lazy').setup({
         -- No, but seriously. Please read `:help ins-completion`, it is really good!
         mapping = cmp.mapping.preset.insert {
           -- Select the [n]ext item
-          ['<C-n>'] = cmp.mapping.select_next_item(),
+          -- ['<C-n>'] = cmp.mapping.select_next_item(),
           -- Select the [p]revious item
-          ['<C-p>'] = cmp.mapping.select_prev_item(),
+          -- ['<C-p>'] = cmp.mapping.select_prev_item(),
 
           -- Scroll the documentation window [b]ack / [f]orward
-          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+          -- ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+          -- ['<C-f>'] = cmp.mapping.scroll_docs(4),
 
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
@@ -818,9 +835,9 @@ require('lazy').setup({
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
-          ['<CR>'] = cmp.mapping.confirm { select = true },
-          ['<Tab>'] = cmp.mapping.select_next_item(),
-          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          ['<Tab>'] = cmp.mapping.confirm { select = true },
+          -- ['<Tab>'] = cmp.mapping.select_next_item(),
+          -- ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -856,6 +873,7 @@ require('lazy').setup({
             group_index = 0,
           },
           { name = 'nvim_lsp' },
+          { name = 'buffer' },
           { name = 'luasnip' },
           { name = 'path' },
         },
@@ -956,10 +974,10 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
@@ -989,7 +1007,53 @@ require('lazy').setup({
       lazy = '💤 ',
     },
   },
-})
+}
+)
+
+-- Require necessary modules
+local telescope = require('telescope')
+local actions = require('telescope.actions')
+local action_state = require('telescope.actions.state')
+local pickers = require('telescope.pickers')
+local finders = require('telescope.finders')
+local conf = require('telescope.config').values
+
+-- Custom picker function
+local M = {}
+
+M.all_commands = function(opts)
+  opts = opts or {}
+
+  local commands = vim.fn.getcompletion('', 'command')
+
+  pickers.new(opts, {
+    prompt_title = 'All Commands',
+    finder = finders.new_table {
+      results = commands,
+    },
+    sorter = conf.generic_sorter(opts),
+    attach_mappings = function(prompt_bufnr, map)
+      actions.select_default:replace(function()
+        local selection = action_state.get_selected_entry()
+        actions.close(prompt_bufnr)
+        vim.cmd(selection[1])
+      end)
+      return true
+    end,
+  }):find()
+end
+
+-- Map <leader>sh to the custom picker
+vim.api.nvim_set_keymap(
+  'n',
+  '<leader>sh',
+  '<cmd>lua require("your_module_name").all_commands()<CR>',
+  { noremap = true, silent = true }
+)
+
+-- Return the module (if using a separate file)
+return M
+
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
